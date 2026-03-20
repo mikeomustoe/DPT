@@ -1260,176 +1260,100 @@
         // Nigerian and Ghanaian mobile network codes (MCC)
         const BLOCKED_MCC = ['621', '620']; // 621 = Nigeria, 620 = Ghana
         
-        // Known Nigerian/Ghanaian timezone
+        // Known Nigerian/Ghanaian timezone (for logging only, not blocking)
         const BLOCKED_TIMEZONES = ['Africa/Lagos', 'Africa/Accra'];
         
         // Nigerian/Ghanaian phone prefixes
         const BLOCKED_PHONE_PREFIXES = ['+234', '+233', '234', '233'];
         
-        // Known datacenter/VPN IP ranges (partial list - these are commonly used VPN exit nodes)
         let isGeoBlocked = false;
         
+        // SIMPLIFIED GEO-BLOCKING: Only blocks based on IP geolocation
+        // This prevents false positives from timezone, language, etc.
         async function performStrictGeoCheck() {
             const overlay = document.getElementById('geoBlockOverlay');
-            const checks = [];
-            let blockReason = '';
             
-            // Check 1: Multiple IP Geolocation APIs
-            const ipChecks = await Promise.allSettled([
-                fetch('https://ipapi.co/json/').then(r => r.json()).catch(() => null),
-                fetch('https://ip-api.com/json/').then(r => r.json()).catch(() => null),
-                fetch('https://ipwho.is/').then(r => r.json()).catch(() => null),
-                fetch('https://freeipapi.com/api/json').then(r => r.json()).catch(() => null)
-            ]);
-            
-            for (const result of ipChecks) {
-                if (result.status === 'fulfilled' && result.value) {
-                    const data = result.value;
-                    const countryCode = data.country_code || data.countryCode || data.country || '';
-                    const countryName = data.country_name || data.country || '';
-                    
-                    if (BLOCKED_COUNTRY_CODES.includes(countryCode.toUpperCase()) || 
-                        BLOCKED_COUNTRIES.some(c => countryName.toLowerCase().includes(c.toLowerCase()))) {
-                        blockReason = 'IP_LOCATION';
-                        checks.push(true);
-                    }
-                    
-                    // Check for VPN/Proxy/Datacenter
-                    if (data.proxy || data.vpn || data.tor || data.hosting) {
-                        // Additional check if using VPN from blocked region
-                        checks.push('vpn_detected');
-                    }
-                }
-            }
-            
-            // Check 2: Timezone check
-            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            if (BLOCKED_TIMEZONES.includes(timezone)) {
-                blockReason = blockReason || 'TIMEZONE';
-                checks.push(true);
-            }
-            
-            // Check 3: Language/Locale check
-            const languages = navigator.languages || [navigator.language];
-            const nigerianLocales = ['en-NG', 'ha', 'ig', 'yo', 'pcm']; // Nigerian languages
-            const ghanaianLocales = ['en-GH', 'ak', 'ee', 'tw']; // Ghanaian languages
-            const blockedLocales = [...nigerianLocales, ...ghanaianLocales];
-            
-            if (languages.some(lang => blockedLocales.some(bl => lang.toLowerCase().startsWith(bl.toLowerCase())))) {
-                blockReason = blockReason || 'LOCALE';
-                checks.push(true);
-            }
-            
-            // Check 4: Currency check (if available)
-            try {
-                const currency = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' })
-                    .resolvedOptions().locale;
-                if (currency && (currency.includes('NG') || currency.includes('GH'))) {
-                    blockReason = blockReason || 'CURRENCY_LOCALE';
-                    checks.push(true);
-                }
-            } catch(e) {}
-            
-            // Check 5: Check for Nigerian/Ghanaian mobile carriers via connection info
-            if (navigator.connection && navigator.connection.type === 'cellular') {
-                // Mobile network might reveal location
-                checks.push('cellular_check');
-            }
-            
-            // Check 6: WebRTC IP leak detection (catches some VPNs)
-            try {
-                const webrtcIPs = await getWebRTCIPs();
-                for (const ip of webrtcIPs) {
-                    // Check these IPs against geo APIs too
-                    try {
-                        const geoCheck = await fetch(`https://ipapi.co/${ip}/json/`).then(r => r.json());
-                        if (geoCheck && BLOCKED_COUNTRY_CODES.includes(geoCheck.country_code)) {
-                            blockReason = 'WEBRTC_LEAK';
-                            checks.push(true);
-                        }
-                    } catch(e) {}
-                }
-            } catch(e) {}
-            
-            // Check 7: Check localStorage for previous blocks
+            // Check if previously blocked (can be cleared by clearing localStorage)
             if (localStorage.getItem('dpt_geo_blocked') === 'true') {
-                blockReason = 'PREVIOUS_BLOCK';
-                checks.push(true);
+                // Verify the block is still valid by re-checking IP
+                const stillBlocked = await checkIPLocation();
+                if (stillBlocked) {
+                    activateBlock('PREVIOUS_BLOCK');
+                    return true;
+                } else {
+                    // User moved to allowed region, clear block
+                    localStorage.removeItem('dpt_geo_blocked');
+                    localStorage.removeItem('dpt_block_reason');
+                }
             }
             
-            // Decision: Block if ANY check returns positive for blocked country
-            const shouldBlock = checks.includes(true);
+            // Primary check: IP Geolocation only
+            const blocked = await checkIPLocation();
             
-            if (shouldBlock) {
-                // Permanently mark as blocked
-                localStorage.setItem('dpt_geo_blocked', 'true');
-                localStorage.setItem('dpt_block_reason', blockReason);
-                localStorage.setItem('dpt_block_time', new Date().toISOString());
-                
-                // Block the user
-                document.body.classList.add('geo-blocked');
-                overlay.classList.remove('hidden');
-                isGeoBlocked = true;
-                
-                // Disable all interactions
-                document.querySelectorAll('a, button, input, select, textarea').forEach(el => {
-                    el.style.pointerEvents = 'none';
-                });
-                
-                // Clear any stored user data
-                localStorage.removeItem('dpt_currentUser');
-                localStorage.removeItem('dpt_adminAuth');
-                
-                // Log blocked attempt (for admin visibility)
-                logBlockedAttempt(blockReason, timezone);
-                
+            if (blocked) {
+                activateBlock('IP_LOCATION');
                 return true;
             } else {
-                // Clear the block flag and show site
                 overlay.classList.add('hidden');
                 document.body.classList.remove('geo-blocked');
                 return false;
             }
         }
         
-        // WebRTC IP detection (catches VPN leaks)
-        function getWebRTCIPs() {
-            return new Promise((resolve) => {
-                const ips = [];
-                try {
-                    const RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
-                    if (!RTCPeerConnection) {
-                        resolve(ips);
-                        return;
+        // Check IP location using multiple APIs
+        async function checkIPLocation() {
+            try {
+                // Try multiple IP geolocation services
+                const results = await Promise.allSettled([
+                    fetch('https://ipapi.co/json/', { timeout: 5000 }).then(r => r.json()).catch(() => null),
+                    fetch('https://ip-api.com/json/', { timeout: 5000 }).then(r => r.json()).catch(() => null)
+                ]);
+                
+                for (const result of results) {
+                    if (result.status === 'fulfilled' && result.value) {
+                        const data = result.value;
+                        const countryCode = (data.country_code || data.countryCode || '').toUpperCase();
+                        
+                        // Only block if IP is ACTUALLY in Nigeria (NG) or Ghana (GH)
+                        if (countryCode === 'NG' || countryCode === 'GH') {
+                            console.log('Blocked: IP located in', countryCode);
+                            return true;
+                        }
                     }
-                    
-                    const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
-                    pc.createDataChannel('');
-                    
-                    pc.onicecandidate = (e) => {
-                        if (!e.candidate) {
-                            pc.close();
-                            resolve(ips);
-                            return;
-                        }
-                        const parts = e.candidate.candidate.split(' ');
-                        const ip = parts[4];
-                        if (ip && !ip.includes(':') && !ips.includes(ip) && !ip.startsWith('192.168') && !ip.startsWith('10.') && !ip.startsWith('172.')) {
-                            ips.push(ip);
-                        }
-                    };
-                    
-                    pc.createOffer().then(offer => pc.setLocalDescription(offer)).catch(() => resolve(ips));
-                    
-                    // Timeout after 3 seconds
-                    setTimeout(() => {
-                        pc.close();
-                        resolve(ips);
-                    }, 3000);
-                } catch(e) {
-                    resolve(ips);
                 }
+                
+                return false;
+            } catch (error) {
+                console.error('Geo-check error:', error);
+                // On error, allow access (fail open)
+                return false;
+            }
+        }
+        
+        // Activate the geo-block
+        function activateBlock(reason) {
+            const overlay = document.getElementById('geoBlockOverlay');
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            
+            localStorage.setItem('dpt_geo_blocked', 'true');
+            localStorage.setItem('dpt_block_reason', reason);
+            localStorage.setItem('dpt_block_time', new Date().toISOString());
+            
+            document.body.classList.add('geo-blocked');
+            overlay.classList.remove('hidden');
+            isGeoBlocked = true;
+            
+            // Disable interactions
+            document.querySelectorAll('a, button, input, select, textarea').forEach(el => {
+                el.style.pointerEvents = 'none';
             });
+            
+            // Clear user sessions
+            localStorage.removeItem('dpt_currentUser');
+            localStorage.removeItem('dpt_adminAuth');
+            
+            // Log for admin
+            logBlockedAttempt(reason, timezone);
         }
         
         // Log blocked attempts for admin review
@@ -1448,28 +1372,15 @@
             localStorage.setItem('dpt_blocked_attempts', JSON.stringify(blockedAttempts));
         }
         
-        // Run geo-check immediately and block everything until verified
+        // Run geo-check on page load
         (async function() {
-            // First, check if already blocked
-            if (localStorage.getItem('dpt_geo_blocked') === 'true') {
-                const overlay = document.getElementById('geoBlockOverlay');
-                if (overlay) {
-                    document.body.classList.add('geo-blocked');
-                    overlay.classList.remove('hidden');
-                    isGeoBlocked = true;
-                }
-                return;
-            }
-            
-            // Perform full geo-check
             await performStrictGeoCheck();
-            
-            // Re-check every 30 seconds (in case VPN disconnects)
+            // Re-check every 60 seconds (less aggressive)
             setInterval(async () => {
                 if (!isGeoBlocked) {
                     await performStrictGeoCheck();
                 }
-            }, 30000);
+            }, 60000);
         })();
         
         // ==================== CONFIGURATION ====================
