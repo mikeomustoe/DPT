@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Pip Trade - Premium Forex Investment</title>
-    <link rel="icon" type="image/png" href="dpt-logo.png">
-    <link rel="apple-touch-icon" href="dpt-logo.png">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23e8c875'/%3E%3Cstop offset='50%25' stop-color='%23c9a54e'/%3E%3Cstop offset='100%25' stop-color='%23a67c3d'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='48' fill='%230a0a0a' stroke='url(%23g)' stroke-width='3'/%3E%3Ctext x='50' y='38' text-anchor='middle' font-family='Georgia' font-size='24' font-weight='bold' fill='url(%23g)'%3ED%3Ctspan font-size='28' dy='-5'%3EP%3C/tspan%3E%3C/text%3E%3Ctext x='50' y='62' text-anchor='middle' font-family='Georgia' font-size='28' font-weight='bold' fill='url(%23g)'%3ET%3C/text%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23e8c875'/%3E%3Cstop offset='50%25' stop-color='%23c9a54e'/%3E%3Cstop offset='100%25' stop-color='%23a67c3d'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='48' fill='%230a0a0a' stroke='url(%23g)' stroke-width='3'/%3E%3Ctext x='50' y='38' text-anchor='middle' font-family='Georgia' font-size='24' font-weight='bold' fill='url(%23g)'%3ED%3Ctspan font-size='28' dy='-5'%3EP%3C/tspan%3E%3C/text%3E%3Ctext x='50' y='62' text-anchor='middle' font-family='Georgia' font-size='28' font-weight='bold' fill='url(%23g)'%3ET%3C/text%3E%3C/svg%3E">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -65,8 +65,9 @@
         /* Navigation */
         .landing-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(10,10,10,0.98), rgba(10,10,10,0.8)); backdrop-filter: blur(10px); }
         .logo { display: flex; align-items: center; gap: 0.75rem; cursor: pointer; }
-        .logo-circle { width: 45px; height: 45px; border-radius: 50%; background: var(--gold-gradient); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .logo-circle { width: 45px; height: 45px; border-radius: 50%; background: var(--black); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid var(--gold); }
         .logo-circle img { width: 100%; height: 100%; object-fit: cover; }
+        .logo-circle svg { width: 100%; height: 100%; }
         .logo-text { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1.1rem; color: var(--black); }
         .logo-full { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--text-light); }
         .nav-links { display: flex; gap: 2.5rem; list-style: none; }
@@ -589,7 +590,7 @@
     <!-- ==================== LANDING PAGE ==================== -->
     <div class="page active" id="landing-page">
         <nav class="landing-nav">
-            <div class="logo" onclick="showPage('landing')"><div class="logo-circle"><img src="dpt-logo.png" alt="DPT"></div><span class="logo-full">Daily Pip Trade</span></div>
+            <div class="logo" onclick="showPage('landing')"><div class="logo-circle"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#e8c875"/><stop offset="50%" style="stop-color:#c9a54e"/><stop offset="100%" style="stop-color:#a67c3d"/></linearGradient></defs><circle cx="50" cy="50" r="48" fill="none" stroke="url(#goldGrad)" stroke-width="2"/><text x="50" y="38" text-anchor="middle" font-family="Georgia, serif" font-size="24" font-weight="bold" fill="url(#goldGrad)">D<tspan font-size="28" dy="-5">P</tspan></text><text x="50" y="62" text-anchor="middle" font-family="Georgia, serif" font-size="28" font-weight="bold" fill="url(#goldGrad)">T</text><text x="50" y="82" text-anchor="middle" font-family="Georgia, serif" font-size="9" fill="url(#goldGrad)">Daily Pip Trade</text></svg></div><span class="logo-full">Daily Pip Trade</span></div>
             <ul class="nav-links"><li><a href="#home">Home</a></li><li><a href="#plans">Plans</a></li><li><a href="#features">Features</a></li></ul>
             <div class="nav-cta"><button class="btn-login" onclick="showPage('login')">Login</button><button class="btn-register" onclick="showPage('register')">Register Now</button></div>
         </nav>
@@ -688,7 +689,7 @@
 
         <footer class="landing-footer">
             <div class="footer-content">
-                <div class="footer-brand"><div class="logo"><div class="logo-circle"><img src="dpt-logo.png" alt="DPT"></div><span class="logo-full">Daily Pip Trade</span></div><p>Your trusted partner for forex investment across Oceania. Building wealth for Pacific Island communities since 2020.</p></div>
+                <div class="footer-brand"><div class="logo"><div class="logo-circle"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="goldGrad2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#e8c875"/><stop offset="50%" style="stop-color:#c9a54e"/><stop offset="100%" style="stop-color:#a67c3d"/></linearGradient></defs><circle cx="50" cy="50" r="48" fill="none" stroke="url(#goldGrad2)" stroke-width="2"/><text x="50" y="38" text-anchor="middle" font-family="Georgia, serif" font-size="24" font-weight="bold" fill="url(#goldGrad2)">D<tspan font-size="28" dy="-5">P</tspan></text><text x="50" y="62" text-anchor="middle" font-family="Georgia, serif" font-size="28" font-weight="bold" fill="url(#goldGrad2)">T</text></svg></div><span class="logo-full">Daily Pip Trade</span></div><p>Your trusted partner for forex investment across Oceania. Building wealth for Pacific Island communities since 2020.</p></div>
                 <div class="footer-links"><h4>Quick Links</h4><ul><li><a href="#home">Home</a></li><li><a href="#plans">Plans</a></li><li><a href="#features">Features</a></li></ul></div>
                 <div class="footer-links"><h4>Legal</h4><ul><li><a href="#">Terms of Service</a></li><li><a href="#">Privacy Policy</a></li><li><a href="#">Risk Disclosure</a></li></ul></div>
                 <div class="footer-links"><h4>Support</h4><ul><li><a href="#">FAQ</a></li><li><a href="#">How It Works</a></li><li><a href="#">Help Center</a></li></ul></div>
@@ -702,7 +703,7 @@
         <div class="auth-page">
             <div class="auth-container">
                 <a class="auth-back" onclick="showPage('landing')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back to Home</a>
-                <div class="auth-header"><div class="logo"><div class="logo-circle"><img src="dpt-logo.png" alt="DPT"></div><span class="logo-full">Daily Pip Trade</span></div><h2>Welcome Back</h2><p>Login to access your dashboard</p></div>
+                <div class="auth-header"><div class="logo"><div class="logo-circle"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="goldGrad3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#e8c875"/><stop offset="50%" style="stop-color:#c9a54e"/><stop offset="100%" style="stop-color:#a67c3d"/></linearGradient></defs><circle cx="50" cy="50" r="48" fill="none" stroke="url(#goldGrad3)" stroke-width="2"/><text x="50" y="38" text-anchor="middle" font-family="Georgia, serif" font-size="24" font-weight="bold" fill="url(#goldGrad3)">D<tspan font-size="28" dy="-5">P</tspan></text><text x="50" y="62" text-anchor="middle" font-family="Georgia, serif" font-size="28" font-weight="bold" fill="url(#goldGrad3)">T</text></svg></div><span class="logo-full">Daily Pip Trade</span></div><h2>Welcome Back</h2><p>Login to access your dashboard</p></div>
                 <form class="auth-form" id="loginForm" onsubmit="handleLogin(event)">
                     <div class="form-group"><label>Email Address</label><input type="email" id="loginEmail" required placeholder="Enter your email"></div>
                     <div class="form-group"><label>Password</label><input type="password" id="loginPassword" required placeholder="Enter your password"></div>
@@ -718,7 +719,7 @@
         <div class="auth-page">
             <div class="auth-container register-container">
                 <a class="auth-back" onclick="showPage('landing')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back to Home</a>
-                <div class="auth-header"><div class="logo"><div class="logo-circle"><img src="dpt-logo.png" alt="DPT"></div><span class="logo-full">Daily Pip Trade</span></div><h2>Create Account</h2><p>Start your investment journey today</p></div>
+                <div class="auth-header"><div class="logo"><div class="logo-circle"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="goldGrad4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#e8c875"/><stop offset="50%" style="stop-color:#c9a54e"/><stop offset="100%" style="stop-color:#a67c3d"/></linearGradient></defs><circle cx="50" cy="50" r="48" fill="none" stroke="url(#goldGrad4)" stroke-width="2"/><text x="50" y="38" text-anchor="middle" font-family="Georgia, serif" font-size="24" font-weight="bold" fill="url(#goldGrad4)">D<tspan font-size="28" dy="-5">P</tspan></text><text x="50" y="62" text-anchor="middle" font-family="Georgia, serif" font-size="28" font-weight="bold" fill="url(#goldGrad4)">T</text></svg></div><span class="logo-full">Daily Pip Trade</span></div><h2>Create Account</h2><p>Start your investment journey today</p></div>
                 <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)">
                     <h3 class="form-section-title">Account Information</h3>
                     <div class="form-row">
@@ -791,7 +792,7 @@
 
         <div class="dashboard-layout">
             <aside class="sidebar" id="userSidebar">
-                <div class="sidebar-logo"><div class="logo-circle"><img src="dpt-logo.png" alt="DPT"></div><span class="logo-full" style="color:var(--gold);font-size:0.9rem;">Daily Pip Trade</span></div>
+                <div class="sidebar-logo"><div class="logo-circle"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="goldGrad5" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#e8c875"/><stop offset="50%" style="stop-color:#c9a54e"/><stop offset="100%" style="stop-color:#a67c3d"/></linearGradient></defs><circle cx="50" cy="50" r="48" fill="none" stroke="url(#goldGrad5)" stroke-width="2"/><text x="50" y="38" text-anchor="middle" font-family="Georgia, serif" font-size="24" font-weight="bold" fill="url(#goldGrad5)">D<tspan font-size="28" dy="-5">P</tspan></text><text x="50" y="62" text-anchor="middle" font-family="Georgia, serif" font-size="28" font-weight="bold" fill="url(#goldGrad5)">T</text></svg></div><span class="logo-full" style="color:var(--gold);font-size:0.9rem;">Daily Pip Trade</span></div>
                 <nav class="sidebar-nav">
                     <a class="nav-item active" data-section="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Overview</a>
                     <a class="nav-item" data-section="invest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Invest</a>
@@ -1187,7 +1188,7 @@
     <!-- User Chat Window -->
     <div class="chat-window" id="userChatWindow">
         <div class="chat-header">
-            <div class="chat-header-avatar" style="padding:0;overflow:hidden;"><img src="dpt-logo.png" alt="DPT" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="chat-header-avatar" style="padding:0;overflow:hidden;background:#0a0a0a;"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><defs><linearGradient id="goldGrad6" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#e8c875"/><stop offset="50%" style="stop-color:#c9a54e"/><stop offset="100%" style="stop-color:#a67c3d"/></linearGradient></defs><circle cx="50" cy="50" r="48" fill="none" stroke="url(#goldGrad6)" stroke-width="2"/><text x="50" y="38" text-anchor="middle" font-family="Georgia, serif" font-size="24" font-weight="bold" fill="url(#goldGrad6)">D<tspan font-size="28" dy="-5">P</tspan></text><text x="50" y="62" text-anchor="middle" font-family="Georgia, serif" font-size="28" font-weight="bold" fill="url(#goldGrad6)">T</text></svg></div>
             <div class="chat-header-info">
                 <div class="chat-header-name">DPT Support</div>
                 <div class="chat-header-status"><span class="online-dot"></span> Online</div>
@@ -1288,6 +1289,12 @@
                 overlay.classList.add('hidden');
                 document.body.classList.remove('geo-blocked');
                 isGeoBlocked = false;
+                
+                // Re-enable all interactions (in case they were disabled)
+                document.querySelectorAll('a, button, input, select, textarea').forEach(el => {
+                    el.style.pointerEvents = '';
+                });
+                
                 return false;
             }
         }
