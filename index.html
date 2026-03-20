@@ -1793,8 +1793,8 @@
                 country: document.getElementById('regCountry').value,
                 relationshipStatus: document.getElementById('regRelationship').value,
                 children: document.getElementById('regChildren').value,
-                selfie: document.getElementById('selfiePreview').querySelector('img')?.src || '',
-                govId: document.getElementById('idPreview').querySelector('img')?.src || '',
+                selfie: document.getElementById('selfiePreview')?.querySelector('img')?.src || '',
+                govId: document.getElementById('idPreview')?.querySelector('img')?.src || '',
                 registeredAt: new Date().toISOString(),
                 capital: 0, profit: 0, bonus: 0, balance: 0,
                 status: 'active',
@@ -1804,23 +1804,29 @@
                 notices: []
             };
             
+            console.log('📝 Registration attempt:', { email, useFirebase });
+            
             try {
                 if (useFirebase && auth) {
+                    console.log('🔥 Using Firebase authentication...');
                     // Firebase Registration
                     const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                     const user = userCredential.user;
+                    console.log('✅ Firebase user created:', user.uid);
                     
                     // Store user data in Firestore (without password!)
                     await db.collection('users').doc(user.uid).set({
                         ...userData,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
+                    console.log('✅ User data saved to Firestore');
                     
                     currentUser = { id: user.uid, ...userData };
                     localStorage.setItem('dpt_currentUser', JSON.stringify(currentUser));
                     showPage('dashboard');
                     
                 } else {
+                    console.log('💾 Using localStorage fallback...');
                     // Fallback: localStorage registration
                     const user = {
                         id: 'USR' + Date.now(),
@@ -1831,15 +1837,21 @@
                     const users = JSON.parse(localStorage.getItem('dpt_users') || '[]');
                     if (users.find(u => u.email === user.email)) {
                         alert('Email already registered');
+                        regBtn.textContent = originalText;
+                        regBtn.disabled = false;
                         return;
                     }
                     users.push(user);
                     localStorage.setItem('dpt_users', JSON.stringify(users));
                     localStorage.setItem('dpt_currentUser', JSON.stringify(user));
+                    console.log('✅ User registered in localStorage');
                     showPage('dashboard');
                 }
             } catch (error) {
-                console.error('Registration error:', error);
+                console.error('❌ Registration error:', error);
+                console.error('Error code:', error.code);
+                console.error('Error message:', error.message);
+                
                 let errorMessage = 'Registration failed. Please try again.';
                 
                 if (error.code === 'auth/email-already-in-use') {
@@ -1847,7 +1859,13 @@
                 } else if (error.code === 'auth/invalid-email') {
                     errorMessage = 'Invalid email address.';
                 } else if (error.code === 'auth/weak-password') {
-                    errorMessage = 'Password is too weak. Use at least 8 characters with numbers and symbols.';
+                    errorMessage = 'Password is too weak. Use at least 8 characters.';
+                } else if (error.code === 'auth/operation-not-allowed') {
+                    errorMessage = 'Email/password registration is not enabled. Please contact support.';
+                } else if (error.code === 'auth/network-request-failed') {
+                    errorMessage = 'Network error. Please check your connection.';
+                } else if (error.message) {
+                    errorMessage = error.message;
                 }
                 
                 alert(errorMessage);
