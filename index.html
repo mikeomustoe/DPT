@@ -571,7 +571,7 @@
 <body>
 
     <!-- ==================== GEO-BLOCK OVERLAY ==================== -->
-    <div class="geo-block-overlay" id="geoBlockOverlay">
+    <div class="geo-block-overlay hidden" id="geoBlockOverlay">
         <div class="geo-block-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"/>
@@ -1273,29 +1273,21 @@
         async function performStrictGeoCheck() {
             const overlay = document.getElementById('geoBlockOverlay');
             
-            // Check if previously blocked (can be cleared by clearing localStorage)
-            if (localStorage.getItem('dpt_geo_blocked') === 'true') {
-                // Verify the block is still valid by re-checking IP
-                const stillBlocked = await checkIPLocation();
-                if (stillBlocked) {
-                    activateBlock('PREVIOUS_BLOCK');
-                    return true;
-                } else {
-                    // User moved to allowed region, clear block
-                    localStorage.removeItem('dpt_geo_blocked');
-                    localStorage.removeItem('dpt_block_reason');
-                }
-            }
-            
-            // Primary check: IP Geolocation only
+            // Always verify with fresh IP check (ignore localStorage)
             const blocked = await checkIPLocation();
             
             if (blocked) {
+                // Only block if IP check confirms Nigeria or Ghana
+                localStorage.setItem('dpt_geo_blocked', 'true');
                 activateBlock('IP_LOCATION');
                 return true;
             } else {
+                // Clear any previous block and allow access
+                localStorage.removeItem('dpt_geo_blocked');
+                localStorage.removeItem('dpt_block_reason');
                 overlay.classList.add('hidden');
                 document.body.classList.remove('geo-blocked');
+                isGeoBlocked = false;
                 return false;
             }
         }
@@ -1303,26 +1295,52 @@
         // Check IP location using multiple APIs
         async function checkIPLocation() {
             try {
-                // Try multiple IP geolocation services
-                const results = await Promise.allSettled([
-                    fetch('https://ipapi.co/json/', { timeout: 5000 }).then(r => r.json()).catch(() => null),
-                    fetch('https://ip-api.com/json/', { timeout: 5000 }).then(r => r.json()).catch(() => null)
-                ]);
+                console.log('🌍 Checking IP location...');
                 
-                for (const result of results) {
-                    if (result.status === 'fulfilled' && result.value) {
-                        const data = result.value;
-                        const countryCode = (data.country_code || data.countryCode || '').toUpperCase();
+                // Try ipapi.co first
+                try {
+                    const response = await fetch('https://ipapi.co/json/');
+                    if (response.ok) {
+                        const data = await response.json();
+                        const countryCode = (data.country_code || '').toUpperCase();
+                        console.log('📍 IP Location detected:', countryCode, data.country_name);
                         
-                        // Only block if IP is ACTUALLY in Nigeria (NG) or Ghana (GH)
+                        // Only block Nigeria and Ghana
                         if (countryCode === 'NG' || countryCode === 'GH') {
-                            console.log('Blocked: IP located in', countryCode);
+                            console.log('🚫 Blocked: User in', countryCode);
                             return true;
                         }
+                        // If we got a valid response and it's not NG/GH, allow access
+                        console.log('✅ Allowed: User in', countryCode);
+                        return false;
                     }
+                } catch (e) {
+                    console.log('⚠️ ipapi.co failed, trying backup...');
                 }
                 
+                // Backup: Try ip-api.com
+                try {
+                    const response = await fetch('http://ip-api.com/json/');
+                    if (response.ok) {
+                        const data = await response.json();
+                        const countryCode = (data.countryCode || '').toUpperCase();
+                        console.log('📍 Backup IP Location:', countryCode, data.country);
+                        
+                        if (countryCode === 'NG' || countryCode === 'GH') {
+                            console.log('🚫 Blocked: User in', countryCode);
+                            return true;
+                        }
+                        console.log('✅ Allowed: User in', countryCode);
+                        return false;
+                    }
+                } catch (e) {
+                    console.log('⚠️ ip-api.com also failed');
+                }
+                
+                // If all APIs fail, ALLOW access (fail-open)
+                console.log('✅ Geo-check APIs unavailable, allowing access');
                 return false;
+                
             } catch (error) {
                 console.error('Geo-check error:', error);
                 // On error, allow access (fail open)
