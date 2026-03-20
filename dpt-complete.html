@@ -4,7 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Pip Trade - Premium Forex Investment</title>
+    <link rel="icon" type="image/png" href="dpt-logo.png">
+    <link rel="apple-touch-icon" href="dpt-logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
     <style>
         :root {
             --gold: #c9a54e;
@@ -58,7 +65,8 @@
         /* Navigation */
         .landing-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(10,10,10,0.98), rgba(10,10,10,0.8)); backdrop-filter: blur(10px); }
         .logo { display: flex; align-items: center; gap: 0.75rem; cursor: pointer; }
-        .logo-circle { width: 45px; height: 45px; border-radius: 50%; background: var(--gold-gradient); display: flex; align-items: center; justify-content: center; }
+        .logo-circle { width: 45px; height: 45px; border-radius: 50%; background: var(--gold-gradient); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .logo-circle img { width: 100%; height: 100%; object-fit: cover; }
         .logo-text { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1.1rem; color: var(--black); }
         .logo-full { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--text-light); }
         .nav-links { display: flex; gap: 2.5rem; list-style: none; }
@@ -581,7 +589,7 @@
     <!-- ==================== LANDING PAGE ==================== -->
     <div class="page active" id="landing-page">
         <nav class="landing-nav">
-            <div class="logo" onclick="showPage('landing')"><div class="logo-circle"><span class="logo-text">DPT</span></div><span class="logo-full">Daily Pip Trade</span></div>
+            <div class="logo" onclick="showPage('landing')"><div class="logo-circle"><img src="dpt-logo.png" alt="DPT"></div><span class="logo-full">Daily Pip Trade</span></div>
             <ul class="nav-links"><li><a href="#home">Home</a></li><li><a href="#plans">Plans</a></li><li><a href="#features">Features</a></li></ul>
             <div class="nav-cta"><button class="btn-login" onclick="showPage('login')">Login</button><button class="btn-register" onclick="showPage('register')">Register Now</button></div>
         </nav>
@@ -680,7 +688,7 @@
 
         <footer class="landing-footer">
             <div class="footer-content">
-                <div class="footer-brand"><div class="logo"><div class="logo-circle"><span class="logo-text">DPT</span></div><span class="logo-full">Daily Pip Trade</span></div><p>Your trusted partner for forex investment across Oceania. Building wealth for Pacific Island communities since 2020.</p></div>
+                <div class="footer-brand"><div class="logo"><div class="logo-circle"><img src="dpt-logo.png" alt="DPT"></div><span class="logo-full">Daily Pip Trade</span></div><p>Your trusted partner for forex investment across Oceania. Building wealth for Pacific Island communities since 2020.</p></div>
                 <div class="footer-links"><h4>Quick Links</h4><ul><li><a href="#home">Home</a></li><li><a href="#plans">Plans</a></li><li><a href="#features">Features</a></li></ul></div>
                 <div class="footer-links"><h4>Legal</h4><ul><li><a href="#">Terms of Service</a></li><li><a href="#">Privacy Policy</a></li><li><a href="#">Risk Disclosure</a></li></ul></div>
                 <div class="footer-links"><h4>Support</h4><ul><li><a href="#">FAQ</a></li><li><a href="#">How It Works</a></li><li><a href="#">Help Center</a></li></ul></div>
@@ -694,8 +702,8 @@
         <div class="auth-page">
             <div class="auth-container">
                 <a class="auth-back" onclick="showPage('landing')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back to Home</a>
-                <div class="auth-header"><div class="logo"><div class="logo-circle"><span class="logo-text">DPT</span></div><span class="logo-full">Daily Pip Trade</span></div><h2>Welcome Back</h2><p>Login to access your dashboard</p></div>
-                <form class="auth-form" onsubmit="handleLogin(event)">
+                <div class="auth-header"><div class="logo"><div class="logo-circle"><img src="dpt-logo.png" alt="DPT"></div><span class="logo-full">Daily Pip Trade</span></div><h2>Welcome Back</h2><p>Login to access your dashboard</p></div>
+                <form class="auth-form" id="loginForm" onsubmit="handleLogin(event)">
                     <div class="form-group"><label>Email Address</label><input type="email" id="loginEmail" required placeholder="Enter your email"></div>
                     <div class="form-group"><label>Password</label><input type="password" id="loginPassword" required placeholder="Enter your password"></div>
                     <button type="submit" class="btn btn-primary">Login</button>
@@ -710,8 +718,8 @@
         <div class="auth-page">
             <div class="auth-container register-container">
                 <a class="auth-back" onclick="showPage('landing')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back to Home</a>
-                <div class="auth-header"><div class="logo"><div class="logo-circle"><span class="logo-text">DPT</span></div><span class="logo-full">Daily Pip Trade</span></div><h2>Create Account</h2><p>Start your investment journey today</p></div>
-                <form class="auth-form" onsubmit="handleRegister(event)">
+                <div class="auth-header"><div class="logo"><div class="logo-circle"><img src="dpt-logo.png" alt="DPT"></div><span class="logo-full">Daily Pip Trade</span></div><h2>Create Account</h2><p>Start your investment journey today</p></div>
+                <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)">
                     <h3 class="form-section-title">Account Information</h3>
                     <div class="form-row">
                         <div class="form-group"><label>Full Name *</label><input type="text" id="regName" required placeholder="Enter your full name"></div>
@@ -783,7 +791,7 @@
 
         <div class="dashboard-layout">
             <aside class="sidebar" id="userSidebar">
-                <div class="sidebar-logo"><div class="logo-circle"><span class="logo-text">DPT</span></div><span class="logo-full" style="color:var(--gold);font-size:0.9rem;">Daily Pip Trade</span></div>
+                <div class="sidebar-logo"><div class="logo-circle"><img src="dpt-logo.png" alt="DPT"></div><span class="logo-full" style="color:var(--gold);font-size:0.9rem;">Daily Pip Trade</span></div>
                 <nav class="sidebar-nav">
                     <a class="nav-item active" data-section="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Overview</a>
                     <a class="nav-item" data-section="invest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Invest</a>
@@ -1179,7 +1187,7 @@
     <!-- User Chat Window -->
     <div class="chat-window" id="userChatWindow">
         <div class="chat-header">
-            <div class="chat-header-avatar">DPT</div>
+            <div class="chat-header-avatar" style="padding:0;overflow:hidden;"><img src="dpt-logo.png" alt="DPT" style="width:100%;height:100%;object-fit:cover;"></div>
             <div class="chat-header-info">
                 <div class="chat-header-name">DPT Support</div>
                 <div class="chat-header-status"><span class="online-dot"></span> Online</div>
@@ -1470,6 +1478,60 @@
             professional: { name: 'Professional', investment: 550, profit: 5550, bonus: 1500, duration: 3 },
             premium: { name: 'Premium', investment: 1100, profit: 11100, bonus: 5000, duration: 3 }
         };
+        
+        // ==================== FIREBASE CONFIGURATION ====================
+        // Daily Pip Trade Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC1vNs9c9oQJKkJQET8zXMAWHl679R8RYE",
+            authDomain: "daily-pip-trade.firebaseapp.com",
+            projectId: "daily-pip-trade",
+            storageBucket: "daily-pip-trade.firebasestorage.app",
+            messagingSenderId: "794836653251",
+            appId: "1:794836653251:web:253c3084e6df3146d4fe76"
+        };
+        
+        // Initialize Firebase (only if config is set)
+        let db = null;
+        let auth = null;
+        let storage = null;
+        let useFirebase = false;
+        
+        if (firebaseConfig.apiKey !== "YOUR_API_KEY_HERE") {
+            try {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                auth = firebase.auth();
+                storage = firebase.storage();
+                useFirebase = true;
+                console.log('✅ Firebase initialized successfully');
+            } catch (error) {
+                console.error('❌ Firebase initialization failed:', error);
+                useFirebase = false;
+            }
+        } else {
+            console.warn('⚠️ Firebase not configured. Using localStorage fallback.');
+            console.warn('To enable Firebase, update the firebaseConfig object with your credentials.');
+        }
+        
+        // Admin role checking
+        let isCurrentUserAdmin = false;
+        
+        async function checkAdminRole(userId) {
+            if (!useFirebase || !db) return false;
+            try {
+                const userDoc = await db.collection('users').doc(userId).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    return userData.role === 'admin';
+                }
+                return false;
+            } catch (error) {
+                console.error('Error checking admin role:', error);
+                return false;
+            }
+        }
+        
+        // Fallback admin email (used when Firebase is not configured)
         const ADMIN_EMAIL = 'admin@dailypiptrade.com';
 
         let currentUser = null;
@@ -1684,35 +1746,110 @@
         // ==================== AUTH ====================
         function handleLogin(e) {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
+            const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
             
-            if (email === ADMIN_EMAIL) {
-                localStorage.setItem('dpt_adminAuth', 'true');
-                showPage('admin');
-                return;
-            }
+            const loginBtn = document.querySelector('#loginForm button[type="submit"]');
+            const originalText = loginBtn.textContent;
+            loginBtn.textContent = 'Signing in...';
+            loginBtn.disabled = true;
             
-            const users = JSON.parse(localStorage.getItem('dpt_users') || '[]');
-            const user = users.find(u => u.email === email && u.password === password);
-            if (user) {
-                localStorage.setItem('dpt_currentUser', JSON.stringify(user));
-                showPage('dashboard');
-            } else {
-                alert('Invalid email or password');
+            try {
+                if (useFirebase && auth) {
+                    // Firebase Authentication
+                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+                    
+                    // Check if admin
+                    const isAdmin = await checkAdminRole(user.uid);
+                    
+                    if (isAdmin) {
+                        isCurrentUserAdmin = true;
+                        localStorage.setItem('dpt_adminAuth', 'true');
+                        localStorage.setItem('dpt_adminUid', user.uid);
+                        showPage('admin');
+                    } else {
+                        // Load user data from Firestore
+                        const userDoc = await db.collection('users').doc(user.uid).get();
+                        if (userDoc.exists) {
+                            currentUser = { id: user.uid, ...userDoc.data() };
+                            localStorage.setItem('dpt_currentUser', JSON.stringify(currentUser));
+                            showPage('dashboard');
+                        } else {
+                            alert('User profile not found. Please contact support.');
+                            await auth.signOut();
+                        }
+                    }
+                } else {
+                    // Fallback: localStorage auth
+                    if (email === ADMIN_EMAIL) {
+                        localStorage.setItem('dpt_adminAuth', 'true');
+                        showPage('admin');
+                        return;
+                    }
+                    
+                    const users = JSON.parse(localStorage.getItem('dpt_users') || '[]');
+                    const user = users.find(u => u.email === email && u.password === password);
+                    if (user) {
+                        // Check account status
+                        if (user.status === 'blocked') {
+                            alert('Your account has been blocked. Please contact support.');
+                            return;
+                        }
+                        localStorage.setItem('dpt_currentUser', JSON.stringify(user));
+                        showPage('dashboard');
+                    } else {
+                        alert('Invalid email or password');
+                    }
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                let errorMessage = 'Login failed. Please try again.';
+                
+                if (error.code === 'auth/user-not-found') {
+                    errorMessage = 'No account found with this email.';
+                } else if (error.code === 'auth/wrong-password') {
+                    errorMessage = 'Incorrect password.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Invalid email address.';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMessage = 'Too many failed attempts. Please try again later.';
+                } else if (error.code === 'auth/user-disabled') {
+                    errorMessage = 'This account has been disabled.';
+                }
+                
+                alert(errorMessage);
+            } finally {
+                loginBtn.textContent = originalText;
+                loginBtn.disabled = false;
             }
         }
 
-        function handleRegister(e) {
+        async function handleRegister(e) {
             e.preventDefault();
-            const user = {
-                id: 'USR' + Date.now(),
-                fullName: document.getElementById('regName').value,
-                email: document.getElementById('regEmail').value,
-                password: document.getElementById('regPassword').value,
-                phone: document.getElementById('regPhone').value,
-                address: document.getElementById('regAddress').value,
-                occupation: document.getElementById('regOccupation').value,
+            
+            const regBtn = document.querySelector('#registerForm button[type="submit"]');
+            const originalText = regBtn.textContent;
+            regBtn.textContent = 'Creating account...';
+            regBtn.disabled = true;
+            
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            
+            // Validate password strength
+            if (password.length < 8) {
+                alert('Password must be at least 8 characters long.');
+                regBtn.textContent = originalText;
+                regBtn.disabled = false;
+                return;
+            }
+            
+            const userData = {
+                fullName: document.getElementById('regName').value.trim(),
+                email: email,
+                phone: document.getElementById('regPhone').value.trim(),
+                address: document.getElementById('regAddress').value.trim(),
+                occupation: document.getElementById('regOccupation').value.trim(),
                 country: document.getElementById('regCountry').value,
                 relationshipStatus: document.getElementById('regRelationship').value,
                 children: document.getElementById('regChildren').value,
@@ -1720,18 +1857,64 @@
                 govId: document.getElementById('idPreview').querySelector('img')?.src || '',
                 registeredAt: new Date().toISOString(),
                 capital: 0, profit: 0, bonus: 0, balance: 0,
-                investments: [], transactions: []
+                status: 'active',
+                role: 'user',
+                investments: [], 
+                transactions: [],
+                notices: []
             };
             
-            const users = JSON.parse(localStorage.getItem('dpt_users') || '[]');
-            if (users.find(u => u.email === user.email)) {
-                alert('Email already registered');
-                return;
+            try {
+                if (useFirebase && auth) {
+                    // Firebase Registration
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+                    
+                    // Store user data in Firestore (without password!)
+                    await db.collection('users').doc(user.uid).set({
+                        ...userData,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    currentUser = { id: user.uid, ...userData };
+                    localStorage.setItem('dpt_currentUser', JSON.stringify(currentUser));
+                    showPage('dashboard');
+                    
+                } else {
+                    // Fallback: localStorage registration
+                    const user = {
+                        id: 'USR' + Date.now(),
+                        password: password, // Only stored in localStorage fallback
+                        ...userData
+                    };
+                    
+                    const users = JSON.parse(localStorage.getItem('dpt_users') || '[]');
+                    if (users.find(u => u.email === user.email)) {
+                        alert('Email already registered');
+                        return;
+                    }
+                    users.push(user);
+                    localStorage.setItem('dpt_users', JSON.stringify(users));
+                    localStorage.setItem('dpt_currentUser', JSON.stringify(user));
+                    showPage('dashboard');
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                let errorMessage = 'Registration failed. Please try again.';
+                
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = 'This email is already registered.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Invalid email address.';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = 'Password is too weak. Use at least 8 characters with numbers and symbols.';
+                }
+                
+                alert(errorMessage);
+            } finally {
+                regBtn.textContent = originalText;
+                regBtn.disabled = false;
             }
-            users.push(user);
-            localStorage.setItem('dpt_users', JSON.stringify(users));
-            localStorage.setItem('dpt_currentUser', JSON.stringify(user));
-            showPage('dashboard');
         }
 
         function previewFile(input, previewId) {
@@ -1747,8 +1930,26 @@
             }
         }
 
+        // Logout function with Firebase support
+        async function logout() {
+            try {
+                if (useFirebase && auth) {
+                    await auth.signOut();
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+            
+            localStorage.removeItem('dpt_currentUser');
+            localStorage.removeItem('dpt_adminAuth');
+            localStorage.removeItem('dpt_adminUid');
+            currentUser = null;
+            isCurrentUserAdmin = false;
+            showPage('landing');
+        }
+
         // ==================== USER DASHBOARD ====================
-        function initDashboard() {
+        async function initDashboard() {
             const userData = localStorage.getItem('dpt_currentUser');
             if (!userData) { showPage('login'); return; }
             currentUser = JSON.parse(userData);
@@ -2082,10 +2283,9 @@
             if (idx !== -1) { users[idx] = currentUser; localStorage.setItem('dpt_users', JSON.stringify(users)); }
         }
 
-        document.getElementById('logoutBtn')?.addEventListener('click', () => {
-            localStorage.removeItem('dpt_currentUser');
+        document.getElementById('logoutBtn')?.addEventListener('click', async () => {
             if (profitUpdateInterval) clearInterval(profitUpdateInterval);
-            showPage('login');
+            await logout();
         });
 
         document.getElementById('investModal')?.addEventListener('click', e => { if (e.target.id === 'investModal') closeInvestModal(); });
@@ -2758,7 +2958,7 @@
             });
         });
 
-        document.getElementById('adminLogout')?.addEventListener('click', () => { localStorage.removeItem('dpt_adminAuth'); showPage('login'); });
+        document.getElementById('adminLogout')?.addEventListener('click', async () => { await logout(); });
         document.getElementById('userModal')?.addEventListener('click', e => { if (e.target.id === 'userModal') closeUserModal(); });
         document.getElementById('noticeModal')?.addEventListener('click', e => { if (e.target.id === 'noticeModal') closeNoticeModal(); });
 
