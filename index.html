@@ -704,7 +704,7 @@
             <div class="auth-container">
                 <a class="auth-back" onclick="showPage('landing')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back to Home</a>
                 <div class="auth-header"><div class="logo"><div class="logo-circle"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="goldGrad3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#e8c875"/><stop offset="50%" style="stop-color:#c9a54e"/><stop offset="100%" style="stop-color:#a67c3d"/></linearGradient></defs><circle cx="50" cy="50" r="48" fill="none" stroke="url(#goldGrad3)" stroke-width="2"/><text x="50" y="38" text-anchor="middle" font-family="Georgia, serif" font-size="24" font-weight="bold" fill="url(#goldGrad3)">D<tspan font-size="28" dy="-5">P</tspan></text><text x="50" y="62" text-anchor="middle" font-family="Georgia, serif" font-size="28" font-weight="bold" fill="url(#goldGrad3)">T</text></svg></div><span class="logo-full">Daily Pip Trade</span></div><h2>Welcome Back</h2><p>Login to access your dashboard</p></div>
-                <form class="auth-form" id="loginForm" onsubmit="handleLogin(event)">
+                <form class="auth-form" id="loginForm">
                     <div class="form-group"><label>Email Address</label><input type="email" id="loginEmail" required placeholder="Enter your email"></div>
                     <div class="form-group"><label>Password</label><input type="password" id="loginPassword" required placeholder="Enter your password"></div>
                     <button type="submit" class="btn btn-primary">Login</button>
@@ -720,7 +720,7 @@
             <div class="auth-container register-container">
                 <a class="auth-back" onclick="showPage('landing')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back to Home</a>
                 <div class="auth-header"><div class="logo"><div class="logo-circle"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="goldGrad4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#e8c875"/><stop offset="50%" style="stop-color:#c9a54e"/><stop offset="100%" style="stop-color:#a67c3d"/></linearGradient></defs><circle cx="50" cy="50" r="48" fill="none" stroke="url(#goldGrad4)" stroke-width="2"/><text x="50" y="38" text-anchor="middle" font-family="Georgia, serif" font-size="24" font-weight="bold" fill="url(#goldGrad4)">D<tspan font-size="28" dy="-5">P</tspan></text><text x="50" y="62" text-anchor="middle" font-family="Georgia, serif" font-size="28" font-weight="bold" fill="url(#goldGrad4)">T</text></svg></div><span class="logo-full">Daily Pip Trade</span></div><h2>Create Account</h2><p>Start your investment journey today</p></div>
-                <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)">
+                <form class="auth-form" id="registerForm">
                     <h3 class="form-section-title">Account Information</h3>
                     <div class="form-row">
                         <div class="form-group"><label>Full Name *</label><input type="text" id="regName" required placeholder="Enter your full name"></div>
@@ -1680,7 +1680,7 @@
         }
 
         // ==================== AUTH ====================
-        function handleLogin(e) {
+        async function handleLogin(e) {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
@@ -1721,6 +1721,8 @@
                     if (email === ADMIN_EMAIL) {
                         localStorage.setItem('dpt_adminAuth', 'true');
                         showPage('admin');
+                        loginBtn.textContent = originalText;
+                        loginBtn.disabled = false;
                         return;
                     }
                     
@@ -1730,6 +1732,8 @@
                         // Check account status
                         if (user.status === 'blocked') {
                             alert('Your account has been blocked. Please contact support.');
+                            loginBtn.textContent = originalText;
+                            loginBtn.disabled = false;
                             return;
                         }
                         localStorage.setItem('dpt_currentUser', JSON.stringify(user));
@@ -3572,6 +3576,10 @@
             
             // Initialize emoji picker
             initEmojiPicker();
+            
+            // Add form event listeners
+            document.getElementById('loginForm')?.addEventListener('submit', handleLogin);
+            document.getElementById('registerForm')?.addEventListener('submit', handleRegister);
             
             // Start testimonials
             setTimeout(() => { showTestimonial(); setInterval(showTestimonial, 30000); }, 5000);
