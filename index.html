@@ -846,12 +846,42 @@
                 </section>
                 <section class="dashboard-section" id="withdraw">
                     <div class="page-header"><h1 class="page-title">Withdraw <span class="gold-text">Funds</span></h1></div>
-                    <div class="profile-card" style="max-width:450px;">
+                    <div class="profile-card" style="max-width:500px;">
                         <p style="margin-bottom:1rem;color:var(--text-muted);">Available: <strong id="withdrawableBalance" style="color:var(--success);">$0.00</strong></p>
-                        <div class="form-group"><label>Amount ($)</label><input type="number" id="withdrawAmount" placeholder="Enter amount" min="10"></div>
-                        <div class="form-group"><label>Payment Method</label><select id="withdrawMethod"><option value="">Select method</option><option value="mpesa">M-PAiSA</option><option value="bank">Bank Transfer</option><option value="btc">Bitcoin</option><option value="usdt">USDT (TRC20)</option></select></div>
-                        <div class="form-group"><label>Wallet/Account</label><input type="text" id="withdrawAddress" placeholder="Enter wallet or account number"></div>
-                        <button class="btn btn-primary" style="width:100%;" onclick="requestWithdrawal()">Request Withdrawal</button>
+                        
+                        <div class="form-group">
+                            <label>Amount ($)</label>
+                            <input type="number" id="withdrawAmount" placeholder="Enter amount" min="10">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Payment Method</label>
+                            <select id="withdrawMethod" onchange="updateWithdrawFields()">
+                                <option value="">Select method</option>
+                                <option value="mpaisa">M-PAiSA</option>
+                                <option value="bank">Bank Transfer</option>
+                                <option value="btc">Bitcoin</option>
+                                <option value="usdt">USDT (TRC20)</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Dynamic Payment Fields -->
+                        <div id="withdrawFieldsContainer"></div>
+                        
+                        <!-- Authorization Token Section -->
+                        <div class="form-group" style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid rgba(201,165,78,0.2);">
+                            <label>Authorization Token <span style="color:var(--gold);font-size:0.75rem;">(Required)</span></label>
+                            <div style="display:flex;gap:0.5rem;">
+                                <input type="text" id="withdrawToken" placeholder="Enter 6-digit token" maxlength="6" style="flex:1;text-align:center;letter-spacing:0.5rem;font-size:1.2rem;font-weight:600;">
+                                <button type="button" class="btn" style="background:var(--black);border:1px solid var(--gold);color:var(--gold);white-space:nowrap;" onclick="requestWithdrawToken()" id="generateTokenBtn">
+                                    Generate Token
+                                </button>
+                            </div>
+                            <p id="tokenStatus" style="font-size:0.8rem;margin-top:0.5rem;color:var(--text-muted);"></p>
+                            <p id="tokenTimer" style="font-size:0.8rem;color:var(--warning);display:none;"></p>
+                        </div>
+                        
+                        <button class="btn btn-primary" style="width:100%;margin-top:1rem;" onclick="requestWithdrawal()">Request Withdrawal</button>
                     </div>
                 </section>
                 <section class="dashboard-section" id="transactions">
@@ -1068,6 +1098,23 @@
                     </div>
                     <p style="font-size:0.7rem;color:var(--text-muted);margin-top:0.5rem;">
                         <strong>Lock:</strong> User sees "Account Locked" message. <strong>Block:</strong> User cannot access at all.
+                    </p>
+                </div>
+
+                <!-- Withdrawal Token Authorization -->
+                <div style="background:var(--black);padding:1rem;margin-bottom:1rem;border-radius:4px;border:1px solid rgba(201,165,78,0.3);">
+                    <h5 style="color:var(--gold);margin-bottom:0.75rem;font-size:0.85rem;">🔐 Withdrawal Token Authorization</h5>
+                    <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.75rem;">
+                        Grant permission for user to generate a one-time withdrawal authorization token.
+                    </p>
+                    <div style="display:flex;gap:0.5rem;align-items:center;">
+                        <button class="btn btn-sm" id="btnGrantToken" onclick="grantTokenPermission()" style="background:var(--gold);color:var(--black);">
+                            🎟️ Grant Token Permission
+                        </button>
+                        <span id="tokenPermissionStatus" style="font-size:0.8rem;"></span>
+                    </div>
+                    <p style="font-size:0.7rem;color:var(--text-muted);margin-top:0.5rem;">
+                        User must request this permission via chat. Token is valid for 3 minutes and single-use only.
                     </p>
                 </div>
 
@@ -2416,23 +2463,334 @@
             alert('Investment confirmed! Your trade has started.');
         }
 
+        // Dynamic withdrawal fields based on payment method
+        function updateWithdrawFields() {
+            const method = document.getElementById('withdrawMethod').value;
+            const container = document.getElementById('withdrawFieldsContainer');
+            
+            let fieldsHTML = '';
+            
+            switch(method) {
+                case 'mpaisa':
+                    fieldsHTML = `
+                        <div class="form-group">
+                            <label>M-PAiSA Phone Number</label>
+                            <input type="tel" id="withdrawPhone" placeholder="e.g., +679 XXX XXXX" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Account Holder Name</label>
+                            <input type="text" id="withdrawAccountName" placeholder="Name registered with M-PAiSA" required>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'bank':
+                    fieldsHTML = `
+                        <div class="form-group">
+                            <label>Bank Name</label>
+                            <input type="text" id="withdrawBankName" placeholder="e.g., BSP, ANZ, Westpac" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Account Holder Name</label>
+                            <input type="text" id="withdrawAccountName" placeholder="Full name on bank account" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Account Number</label>
+                            <input type="text" id="withdrawAccountNumber" placeholder="Bank account number" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Branch/BSB Code (Optional)</label>
+                            <input type="text" id="withdrawBranchCode" placeholder="Branch code if applicable">
+                        </div>
+                        <div class="form-group">
+                            <label>SWIFT/BIC Code (For International)</label>
+                            <input type="text" id="withdrawSwiftCode" placeholder="SWIFT code if international transfer">
+                        </div>
+                    `;
+                    break;
+                    
+                case 'btc':
+                    fieldsHTML = `
+                        <div class="form-group">
+                            <label>Bitcoin Wallet Address</label>
+                            <input type="text" id="withdrawBtcAddress" placeholder="Enter your BTC wallet address" required>
+                            <p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">⚠️ Double-check your address. Transactions cannot be reversed.</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Network</label>
+                            <select id="withdrawBtcNetwork">
+                                <option value="btc">Bitcoin (BTC)</option>
+                                <option value="lightning">Lightning Network</option>
+                            </select>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'usdt':
+                    fieldsHTML = `
+                        <div class="form-group">
+                            <label>USDT Wallet Address (TRC20)</label>
+                            <input type="text" id="withdrawUsdtAddress" placeholder="Enter your TRC20 USDT wallet address" required>
+                            <p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">⚠️ Only TRC20 network supported. Wrong network = lost funds.</p>
+                        </div>
+                    `;
+                    break;
+                    
+                default:
+                    fieldsHTML = '';
+            }
+            
+            container.innerHTML = fieldsHTML;
+        }
+        
+        // Get withdrawal details based on method
+        function getWithdrawDetails() {
+            const method = document.getElementById('withdrawMethod').value;
+            let details = {};
+            
+            switch(method) {
+                case 'mpaisa':
+                    details = {
+                        phone: document.getElementById('withdrawPhone')?.value || '',
+                        accountName: document.getElementById('withdrawAccountName')?.value || ''
+                    };
+                    if (!details.phone || !details.accountName) return null;
+                    details.display = `M-PAiSA: ${details.phone} (${details.accountName})`;
+                    break;
+                    
+                case 'bank':
+                    details = {
+                        bankName: document.getElementById('withdrawBankName')?.value || '',
+                        accountName: document.getElementById('withdrawAccountName')?.value || '',
+                        accountNumber: document.getElementById('withdrawAccountNumber')?.value || '',
+                        branchCode: document.getElementById('withdrawBranchCode')?.value || '',
+                        swiftCode: document.getElementById('withdrawSwiftCode')?.value || ''
+                    };
+                    if (!details.bankName || !details.accountName || !details.accountNumber) return null;
+                    details.display = `${details.bankName}: ${details.accountNumber} (${details.accountName})`;
+                    break;
+                    
+                case 'btc':
+                    details = {
+                        address: document.getElementById('withdrawBtcAddress')?.value || '',
+                        network: document.getElementById('withdrawBtcNetwork')?.value || 'btc'
+                    };
+                    if (!details.address) return null;
+                    details.display = `BTC (${details.network}): ${details.address.substring(0, 10)}...${details.address.substring(details.address.length - 6)}`;
+                    break;
+                    
+                case 'usdt':
+                    details = {
+                        address: document.getElementById('withdrawUsdtAddress')?.value || ''
+                    };
+                    if (!details.address) return null;
+                    details.display = `USDT (TRC20): ${details.address.substring(0, 10)}...${details.address.substring(details.address.length - 6)}`;
+                    break;
+                    
+                default:
+                    return null;
+            }
+            
+            return details;
+        }
+        
+        // Token system variables
+        let activeTokenTimer = null;
+        let tokenExpiryTime = null;
+        
+        // Request withdrawal token
+        function requestWithdrawToken() {
+            if (!currentUser) {
+                alert('Please log in first');
+                return;
+            }
+            
+            // Check if user has permission to generate token
+            if (!currentUser.canGenerateToken) {
+                document.getElementById('tokenStatus').innerHTML = '❌ Token generation not authorized. Please contact admin via chat to request access.';
+                document.getElementById('tokenStatus').style.color = 'var(--error)';
+                return;
+            }
+            
+            // Check if there's an existing valid token
+            const existingToken = localStorage.getItem('dpt_withdraw_token_' + currentUser.id);
+            const existingExpiry = localStorage.getItem('dpt_withdraw_token_expiry_' + currentUser.id);
+            
+            if (existingToken && existingExpiry && Date.now() < parseInt(existingExpiry)) {
+                const remainingTime = Math.ceil((parseInt(existingExpiry) - Date.now()) / 1000);
+                alert(`You already have an active token. It expires in ${remainingTime} seconds.`);
+                return;
+            }
+            
+            // Generate new 6-digit token
+            const token = Math.floor(100000 + Math.random() * 900000).toString();
+            const expiryTime = Date.now() + (3 * 60 * 1000); // 3 minutes
+            
+            // Store token
+            localStorage.setItem('dpt_withdraw_token_' + currentUser.id, token);
+            localStorage.setItem('dpt_withdraw_token_expiry_' + currentUser.id, expiryTime.toString());
+            
+            // Revoke the permission after generating (one-time use)
+            currentUser.canGenerateToken = false;
+            saveUser();
+            
+            // Show the token
+            document.getElementById('withdrawToken').value = token;
+            document.getElementById('tokenStatus').innerHTML = '✅ Token generated successfully! Enter it in the field above.';
+            document.getElementById('tokenStatus').style.color = 'var(--success)';
+            
+            // Start countdown timer
+            startTokenTimer(expiryTime);
+            
+            // Show notification
+            showToastNotification('Token Generated', `Your withdrawal token is: ${token}. Valid for 3 minutes.`);
+        }
+        
+        // Start token countdown timer
+        function startTokenTimer(expiryTime) {
+            tokenExpiryTime = expiryTime;
+            
+            // Clear existing timer
+            if (activeTokenTimer) {
+                clearInterval(activeTokenTimer);
+            }
+            
+            const timerElement = document.getElementById('tokenTimer');
+            timerElement.style.display = 'block';
+            
+            function updateTimer() {
+                const remaining = Math.max(0, tokenExpiryTime - Date.now());
+                const minutes = Math.floor(remaining / 60000);
+                const seconds = Math.floor((remaining % 60000) / 1000);
+                
+                if (remaining <= 0) {
+                    timerElement.innerHTML = '⏰ Token expired. Request admin approval to generate a new one.';
+                    timerElement.style.color = 'var(--error)';
+                    clearInterval(activeTokenTimer);
+                    
+                    // Clear the token
+                    localStorage.removeItem('dpt_withdraw_token_' + currentUser.id);
+                    localStorage.removeItem('dpt_withdraw_token_expiry_' + currentUser.id);
+                    document.getElementById('withdrawToken').value = '';
+                    document.getElementById('tokenStatus').innerHTML = '';
+                } else {
+                    timerElement.innerHTML = `⏱️ Token expires in: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    timerElement.style.color = remaining < 30000 ? 'var(--error)' : 'var(--warning)';
+                }
+            }
+            
+            updateTimer();
+            activeTokenTimer = setInterval(updateTimer, 1000);
+        }
+        
+        // Validate token
+        function validateWithdrawToken(enteredToken) {
+            if (!currentUser) return false;
+            
+            const storedToken = localStorage.getItem('dpt_withdraw_token_' + currentUser.id);
+            const storedExpiry = localStorage.getItem('dpt_withdraw_token_expiry_' + currentUser.id);
+            
+            if (!storedToken || !storedExpiry) {
+                return { valid: false, message: 'No active token. Generate one first.' };
+            }
+            
+            if (Date.now() > parseInt(storedExpiry)) {
+                localStorage.removeItem('dpt_withdraw_token_' + currentUser.id);
+                localStorage.removeItem('dpt_withdraw_token_expiry_' + currentUser.id);
+                return { valid: false, message: 'Token has expired. Request admin approval to generate a new one.' };
+            }
+            
+            if (enteredToken !== storedToken) {
+                return { valid: false, message: 'Invalid token. Please check and try again.' };
+            }
+            
+            return { valid: true };
+        }
+        
         function requestWithdrawal() {
+            if (!currentUser) {
+                alert('Please log in first');
+                return;
+            }
+            
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
             const method = document.getElementById('withdrawMethod').value;
-            const address = document.getElementById('withdrawAddress').value;
-            if (!amount || amount < 10) { alert('Minimum withdrawal is $10'); return; }
-            if (!method || !address) { alert('Please fill all fields'); return; }
+            const token = document.getElementById('withdrawToken').value.trim();
+            
+            // Validate amount
+            if (!amount || amount < 10) { 
+                alert('Minimum withdrawal is $10'); 
+                return; 
+            }
+            
+            // Validate method
+            if (!method) { 
+                alert('Please select a payment method'); 
+                return; 
+            }
+            
+            // Get and validate payment details
+            const details = getWithdrawDetails();
+            if (!details) {
+                alert('Please fill in all payment details');
+                return;
+            }
+            
+            // Validate balance
             const balance = (currentUser.capital || 0) + (currentUser.profit || 0) + (currentUser.bonus || 0);
-            if (amount > balance) { alert('Insufficient balance'); return; }
+            if (amount > balance) { 
+                alert('Insufficient balance'); 
+                return; 
+            }
+            
+            // Validate token
+            if (!token || token.length !== 6) {
+                alert('Please enter a valid 6-digit authorization token');
+                return;
+            }
+            
+            const tokenValidation = validateWithdrawToken(token);
+            if (!tokenValidation.valid) {
+                alert(tokenValidation.message);
+                return;
+            }
+            
+            // Token is valid - clear it (one-time use)
+            localStorage.removeItem('dpt_withdraw_token_' + currentUser.id);
+            localStorage.removeItem('dpt_withdraw_token_expiry_' + currentUser.id);
+            if (activeTokenTimer) {
+                clearInterval(activeTokenTimer);
+            }
+            document.getElementById('tokenTimer').style.display = 'none';
+            document.getElementById('tokenStatus').innerHTML = '';
+            
+            // Create withdrawal transaction
             if (!currentUser.transactions) currentUser.transactions = [];
-            currentUser.transactions.unshift({ id: 'TXN' + Date.now(), type: 'withdrawal', amount, method, address, status: 'pending', date: new Date().toISOString() });
+            currentUser.transactions.unshift({ 
+                id: 'TXN' + Date.now(), 
+                type: 'withdrawal', 
+                amount, 
+                method, 
+                details: details,
+                displayAddress: details.display,
+                status: 'pending', 
+                date: new Date().toISOString(),
+                tokenUsed: token
+            });
+            
+            // Deduct from capital
             currentUser.capital = Math.max(0, (currentUser.capital || 0) - amount);
             saveUser();
             updateStats();
             updateTransactionHistory();
+            
+            // Clear form
             document.getElementById('withdrawAmount').value = '';
-            document.getElementById('withdrawAddress').value = '';
-            alert('Withdrawal request submitted!');
+            document.getElementById('withdrawToken').value = '';
+            document.getElementById('withdrawMethod').value = '';
+            document.getElementById('withdrawFieldsContainer').innerHTML = '';
+            
+            alert('✅ Withdrawal request submitted successfully! It will be processed within 24 hours.');
         }
 
         function saveUser() {
@@ -2685,11 +3043,20 @@
             let pending = [];
             allUsers.forEach(u => { if (u.transactions) u.transactions.forEach(t => { if (t.type === 'withdrawal' && t.status === 'pending') pending.push({ ...t, user: u }); }); });
             if (!pending.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:2rem;">No pending withdrawals</td></tr>'; return; }
-            tbody.innerHTML = pending.slice(0, 5).map(p => `
-                <tr><td><div class="user-cell"><div class="user-avatar">${p.user.selfie ? `<img src="${p.user.selfie}">` : p.user.fullName.charAt(0)}</div><span class="user-name">${p.user.fullName}</span></div></td>
-                <td style="color:var(--error);">$${p.amount.toLocaleString()}</td><td style="text-transform:capitalize;">${p.method || '-'}</td><td>${new Date(p.date).toLocaleDateString()}</td>
-                <td><div class="action-btns"><button class="btn btn-success btn-sm" onclick="approveWithdrawal('${p.user.id}','${p.id}')">Approve</button><button class="btn btn-danger btn-sm" onclick="rejectWithdrawal('${p.user.id}','${p.id}')">Reject</button></div></td></tr>
-            `).join('');
+            tbody.innerHTML = pending.slice(0, 5).map(p => {
+                const methodDisplay = p.method === 'mpaisa' ? 'M-PAiSA' : 
+                                     p.method === 'btc' ? 'Bitcoin' : 
+                                     p.method === 'usdt' ? 'USDT' : 
+                                     p.method === 'bank' ? 'Bank Transfer' : (p.method || '-');
+                const addressDisplay = p.displayAddress || p.address || '-';
+                return `<tr>
+                    <td><div class="user-cell"><div class="user-avatar">${p.user.selfie ? `<img src="${p.user.selfie}">` : p.user.fullName.charAt(0)}</div><span class="user-name">${p.user.fullName}</span></div></td>
+                    <td style="color:var(--error);">$${p.amount.toLocaleString()}</td>
+                    <td><div style="font-size:0.85rem;">${methodDisplay}</div><div style="font-size:0.7rem;color:var(--text-muted);max-width:150px;overflow:hidden;text-overflow:ellipsis;">${addressDisplay}</div></td>
+                    <td>${new Date(p.date).toLocaleDateString()}</td>
+                    <td><div class="action-btns"><button class="btn btn-success btn-sm" onclick="approveWithdrawal('${p.user.id}','${p.id}')">Approve</button><button class="btn btn-danger btn-sm" onclick="rejectWithdrawal('${p.user.id}','${p.id}')">Reject</button></div></td>
+                </tr>`;
+            }).join('');
         }
 
         function renderAllUsers() {
@@ -2832,6 +3199,9 @@
             document.getElementById('adminFundAmount').value = '';
             document.getElementById('adminFundNote').value = '';
             
+            // Update token permission status
+            updateTokenPermissionUI();
+            
             document.getElementById('userModal').classList.add('active');
         }
 
@@ -2878,6 +3248,57 @@
             viewUser(currentViewingUser.id);
             loadAdminData();
             alert(`${currentViewingUser.fullName}'s account has been activated.`);
+        }
+
+        // Grant token generation permission
+        function grantTokenPermission() {
+            if (!currentViewingUser) return;
+            
+            currentViewingUser.canGenerateToken = true;
+            currentViewingUser.tokenGrantedAt = new Date().toISOString();
+            
+            saveUserToStorage(currentViewingUser);
+            
+            // Update UI
+            document.getElementById('tokenPermissionStatus').innerHTML = '✅ Permission granted!';
+            document.getElementById('tokenPermissionStatus').style.color = 'var(--success)';
+            document.getElementById('btnGrantToken').disabled = true;
+            document.getElementById('btnGrantToken').textContent = '✓ Granted';
+            
+            // Send notification to user
+            if (!currentViewingUser.notices) currentViewingUser.notices = [];
+            currentViewingUser.notices.unshift({
+                id: 'NTC' + Date.now(),
+                type: 'success',
+                title: 'Withdrawal Token Authorized',
+                message: 'You can now generate a withdrawal authorization token. Go to Withdraw page and click "Generate Token". Token is valid for 3 minutes.',
+                createdAt: new Date().toISOString(),
+                read: false
+            });
+            
+            saveUserToStorage(currentViewingUser);
+            
+            alert(`✅ Token generation permission granted to ${currentViewingUser.fullName}. User has been notified.`);
+        }
+
+        // Update viewUser to show token permission status
+        function updateTokenPermissionUI() {
+            if (!currentViewingUser) return;
+            
+            const statusEl = document.getElementById('tokenPermissionStatus');
+            const btnEl = document.getElementById('btnGrantToken');
+            
+            if (currentViewingUser.canGenerateToken) {
+                statusEl.innerHTML = '✅ User can generate token';
+                statusEl.style.color = 'var(--success)';
+                btnEl.textContent = '✓ Already Granted';
+                btnEl.disabled = true;
+            } else {
+                statusEl.innerHTML = '❌ No permission';
+                statusEl.style.color = 'var(--text-muted)';
+                btnEl.textContent = '🎟️ Grant Token Permission';
+                btnEl.disabled = false;
+            }
         }
 
         // Save user to localStorage
