@@ -1637,31 +1637,24 @@
             appId: "1:794836653251:web:253c3084e6df3146d4fe76"
         };
         
-        // Initialize Firebase (only if config is set)
+        // Initialize Firebase
         let db = null;
         let auth = null;
         let storage = null;
-        let useFirebase = false;  // TEMPORARILY DISABLED - Set to check firebaseConfig.apiKey to enable
+        let useFirebase = false;
         
-        // UNCOMMENT THIS BLOCK WHEN FIREBASE AUTH IS FULLY CONFIGURED:
-        /*
-        if (firebaseConfig.apiKey !== "YOUR_API_KEY_HERE") {
-            try {
-                firebase.initializeApp(firebaseConfig);
-                db = firebase.firestore();
-                auth = firebase.auth();
-                storage = firebase.storage();
-                useFirebase = true;
-                console.log('✅ Firebase initialized successfully');
-            } catch (error) {
-                console.error('❌ Firebase initialization failed:', error);
-                useFirebase = false;
-            }
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            auth = firebase.auth();
+            storage = firebase.storage();
+            useFirebase = true;
+            console.log('✅ Firebase initialized successfully');
+        } catch (error) {
+            console.error('❌ Firebase initialization failed:', error);
+            console.log('💾 Falling back to localStorage mode');
+            useFirebase = false;
         }
-        */
-        
-        console.log('💾 Using localStorage mode. Firebase disabled.');
-        console.log('To enable Firebase: uncomment the initialization block above after enabling Firebase Auth.');
         
         // Admin role checking
         let isCurrentUserAdmin = false;
