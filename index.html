@@ -1430,8 +1430,10 @@
         let db = null;
         let auth = null;
         let storage = null;
-        let useFirebase = false;
+        let useFirebase = false;  // TEMPORARILY DISABLED - Set to check firebaseConfig.apiKey to enable
         
+        // UNCOMMENT THIS BLOCK WHEN FIREBASE AUTH IS FULLY CONFIGURED:
+        /*
         if (firebaseConfig.apiKey !== "YOUR_API_KEY_HERE") {
             try {
                 firebase.initializeApp(firebaseConfig);
@@ -1444,10 +1446,11 @@
                 console.error('❌ Firebase initialization failed:', error);
                 useFirebase = false;
             }
-        } else {
-            console.warn('⚠️ Firebase not configured. Using localStorage fallback.');
-            console.warn('To enable Firebase, update the firebaseConfig object with your credentials.');
         }
+        */
+        
+        console.log('💾 Using localStorage mode. Firebase disabled.');
+        console.log('To enable Firebase: uncomment the initialization block above after enabling Firebase Auth.');
         
         // Admin role checking
         let isCurrentUserAdmin = false;
@@ -1693,8 +1696,10 @@
             try {
                 if (useFirebase && auth) {
                     // Firebase Authentication
+                    console.log('🔑 Attempting Firebase login...');
                     const userCredential = await auth.signInWithEmailAndPassword(email, password);
                     const user = userCredential.user;
+                    console.log('✅ Firebase auth successful:', user.uid);
                     
                     // Check if admin
                     const isAdmin = await checkAdminRole(user.uid);
@@ -1712,8 +1717,38 @@
                             localStorage.setItem('dpt_currentUser', JSON.stringify(currentUser));
                             showPage('dashboard');
                         } else {
-                            alert('User profile not found. Please contact support.');
-                            await auth.signOut();
+                            // User profile not found - create a basic one
+                            console.log('⚠️ User profile not found, creating one...');
+                            const newUserData = {
+                                fullName: user.displayName || email.split('@')[0],
+                                email: email,
+                                phone: '',
+                                address: '',
+                                occupation: '',
+                                country: '',
+                                relationshipStatus: '',
+                                children: '',
+                                selfie: '',
+                                govId: '',
+                                registeredAt: new Date().toISOString(),
+                                capital: 0, profit: 0, bonus: 0, balance: 0,
+                                status: 'active',
+                                role: 'user',
+                                investments: [], 
+                                transactions: [],
+                                notices: []
+                            };
+                            
+                            try {
+                                await db.collection('users').doc(user.uid).set(newUserData);
+                                console.log('✅ User profile created');
+                            } catch (dbError) {
+                                console.log('⚠️ Could not save to Firestore, using local data');
+                            }
+                            
+                            currentUser = { id: user.uid, ...newUserData };
+                            localStorage.setItem('dpt_currentUser', JSON.stringify(currentUser));
+                            showPage('dashboard');
                         }
                     }
                 } else {
@@ -1743,7 +1778,7 @@
                     }
                 }
             } catch (error) {
-                console.error('Login error:', error);
+                console.error('❌ Login error:', error);
                 let errorMessage = 'Login failed. Please try again.';
                 
                 if (error.code === 'auth/user-not-found') {
@@ -1756,6 +1791,8 @@
                     errorMessage = 'Too many failed attempts. Please try again later.';
                 } else if (error.code === 'auth/user-disabled') {
                     errorMessage = 'This account has been disabled.';
+                } else if (error.code === 'auth/invalid-credential') {
+                    errorMessage = 'Invalid email or password.';
                 }
                 
                 alert(errorMessage);
