@@ -1856,7 +1856,11 @@
             .sidebar {
                 transform: translateX(-100%);
                 position: fixed;
+                left: 0;
+                top: 0;
                 z-index: 1001;
+                width: 280px;
+                transition: transform 0.3s ease;
             }
 
             .sidebar.open {
@@ -1865,6 +1869,8 @@
 
             .main-content {
                 margin-left: 0;
+                padding: 1rem;
+                padding-top: 70px;
             }
 
             .footer-content {
@@ -1872,33 +1878,67 @@
             }
             
             .mobile-menu-toggle {
-                display: flex;
+                display: flex !important;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                padding-left: 50px;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .admin-chat-container {
+                flex-direction: column;
+            }
+            
+            .chat-list {
+                width: 100%;
+                max-width: 100%;
+                border-right: none;
+                border-bottom: 1px solid rgba(201,165,78,0.1);
+                max-height: 300px;
+            }
+            
+            .admin-chat-main {
+                width: 100%;
+                min-height: 400px;
             }
         }
         
         /* Mobile Menu Toggle Button */
         .mobile-menu-toggle {
             display: none;
+            align-items: center;
+            justify-content: center;
             position: fixed;
-            top: 1rem;
-            left: 1rem;
+            top: 15px;
+            left: 15px;
             z-index: 1002;
             background: var(--gold);
             border: none;
             border-radius: 8px;
-            padding: 0.75rem;
+            padding: 12px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            transition: all 0.3s ease;
         }
         
         .mobile-menu-toggle svg {
             width: 24px;
             height: 24px;
             color: var(--black);
+            display: block;
         }
         
-        .mobile-menu-toggle:hover {
+        .mobile-menu-toggle:hover,
+        .mobile-menu-toggle:active {
             background: var(--gold-light);
+            transform: scale(1.05);
         }
         
         /* Sidebar overlay for mobile */
@@ -1909,21 +1949,126 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.7);
             z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         
         .sidebar-overlay.active {
             display: block;
+            opacity: 1;
+        }
+        
+        /* Mobile-specific improvements */
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 85%;
+                max-width: 300px;
+            }
+            
+            .main-content {
+                padding: 0.75rem;
+                padding-top: 70px;
+            }
+            
+            .page-header {
+                padding-left: 45px;
+            }
+            
+            .page-title {
+                font-size: 1.3rem;
+            }
+            
+            .admin-stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.75rem;
+            }
+            
+            .admin-stat-card {
+                padding: 1rem;
+            }
+            
+            .admin-stat-value {
+                font-size: 1.3rem;
+            }
+            
+            .admin-stat-label {
+                font-size: 0.7rem;
+            }
+            
+            .table-card {
+                overflow-x: auto;
+            }
+            
+            table {
+                min-width: 500px;
+            }
+            
+            .btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
+            
+            .btn-sm {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.75rem;
+            }
+            
+            .modal-content {
+                width: 95%;
+                max-height: 90vh;
+                margin: 5vh auto;
+                padding: 1rem;
+            }
+            
+            .chat-list {
+                max-height: 250px;
+            }
+            
+            .visitor-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            /* User chat window mobile */
+            .user-chat-window {
+                width: calc(100% - 20px);
+                right: 10px;
+                bottom: 80px;
+                max-height: 70vh;
+            }
+            
+            .user-chat-fab {
+                bottom: 20px;
+                right: 15px;
+            }
         }
 
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
             }
+            
+            .landing-nav {
+                padding: 1rem;
+            }
+            
+            .nav-cta {
+                gap: 0.5rem;
+            }
+            
+            .nav-cta .btn-login,
+            .nav-cta .btn-register {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8rem;
+            }
 
             .hero h1 {
-                font-size: 2.5rem;
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 0.9rem;
             }
 
             .stats-grid {
@@ -1968,6 +2113,16 @@
                 right: 15px;
                 max-width: calc(100% - 30px);
                 bottom: 80px;
+            }
+            
+            /* Login/Register forms mobile */
+            .auth-card {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .auth-title {
+                font-size: 1.5rem;
             }
         }
 
