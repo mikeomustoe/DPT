@@ -1659,18 +1659,32 @@
         // Admin role checking
         let isCurrentUserAdmin = false;
         
+        // Hardcoded admin UID (from Firebase Authentication)
+        const ADMIN_UID = 'w2DWGvtVncZ4s6ZqaI23NPNkSdZ2';
+        
         async function checkAdminRole(userId) {
+            // Check hardcoded admin UID first
+            if (userId === ADMIN_UID) {
+                console.log('✅ Admin verified via UID match');
+                return true;
+            }
+            
+            // Then check Firestore
             if (!useFirebase || !db) return false;
             try {
                 const userDoc = await db.collection('users').doc(userId).get();
                 if (userDoc.exists) {
                     const userData = userDoc.data();
-                    return userData.role === 'admin';
+                    if (userData.role === 'admin') {
+                        console.log('✅ Admin verified via Firestore role');
+                        return true;
+                    }
                 }
                 return false;
             } catch (error) {
                 console.error('Error checking admin role:', error);
-                return false;
+                // Fallback: check if UID matches
+                return userId === ADMIN_UID;
             }
         }
         
@@ -2164,10 +2178,10 @@
             // Check account status
             checkAccountStatus();
             
-            document.getElementById('sidebarName').textContent = currentUser.fullName;
-            document.getElementById('sidebarEmail').textContent = currentUser.email;
-            document.getElementById('welcomeName').textContent = currentUser.fullName.split(' ')[0];
-            document.getElementById('avatarInitial').textContent = currentUser.fullName.charAt(0).toUpperCase();
+            document.getElementById('sidebarName').textContent = currentUser.fullName || currentUser.email?.split('@')[0] || 'User';
+            document.getElementById('sidebarEmail').textContent = currentUser.email || '';
+            document.getElementById('welcomeName').textContent = (currentUser.fullName || currentUser.email?.split('@')[0] || 'User').split(' ')[0];
+            document.getElementById('avatarInitial').textContent = (currentUser.fullName || currentUser.email || 'U').charAt(0).toUpperCase();
             
             if (currentUser.selfie) {
                 document.getElementById('sidebarAvatar').innerHTML = `<img src="${currentUser.selfie}" alt="Avatar">`;
