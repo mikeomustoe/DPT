@@ -478,7 +478,7 @@
         .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
         @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-4px); } }
         
-        .chat-input-area { background: var(--black-card); border-top: 1px solid rgba(201, 165, 78, 0.1); padding: 0.75rem; }
+        .chat-input-area { background: var(--black-card); border-top: 1px solid rgba(201, 165, 78, 0.1); padding: 0.75rem; position: relative; }
         .chat-reply-bar { display: none; background: var(--black); padding: 0.5rem 0.75rem; margin-bottom: 0.5rem; border-radius: 8px; border-left: 3px solid var(--gold); }
         .chat-reply-bar.active { display: flex; align-items: center; justify-content: space-between; }
         .chat-reply-bar .reply-content { flex: 1; overflow: hidden; }
@@ -486,24 +486,24 @@
         .chat-reply-bar .reply-text { font-size: 0.75rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .chat-reply-bar .close-reply { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.25rem; }
         
-        .chat-input-row { display: flex; align-items: flex-end; gap: 0.5rem; }
-        .chat-input-actions { display: flex; gap: 0.25rem; }
-        .chat-input-btn { width: 36px; height: 36px; border-radius: 50%; background: transparent; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: all 0.2s; }
+        .chat-input-row { display: flex; align-items: center; gap: 0.5rem; }
+        .chat-input-actions { display: flex; gap: 0.25rem; flex-shrink: 0; }
+        .chat-input-btn { width: 32px; height: 32px; border-radius: 50%; background: transparent; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: all 0.2s; flex-shrink: 0; }
         .chat-input-btn:hover { color: var(--gold); background: rgba(201, 165, 78, 0.1); }
         .chat-input-btn svg { width: 20px; height: 20px; }
         
-        .chat-input-wrapper { flex: 1; background: var(--black); border: 1px solid rgba(201, 165, 78, 0.2); border-radius: 20px; padding: 0.5rem 1rem; display: flex; align-items: flex-end; gap: 0.5rem; }
+        .chat-input-wrapper { flex: 1; min-width: 0; background: var(--black); border: 1px solid rgba(201, 165, 78, 0.2); border-radius: 20px; padding: 0.5rem 1rem; display: flex; align-items: center; }
         .chat-input-wrapper:focus-within { border-color: var(--gold); }
-        .chat-input { flex: 1; background: none; border: none; color: var(--text-light); font-size: 0.9rem; resize: none; max-height: 100px; outline: none; font-family: inherit; }
+        .chat-input { flex: 1; background: none; border: none; color: var(--text-light); font-size: 0.9rem; resize: none; max-height: 100px; outline: none; font-family: inherit; min-width: 0; }
         .chat-input::placeholder { color: var(--text-muted); }
         
-        .chat-send-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--gold-gradient); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
+        .chat-send-btn { width: 40px; height: 40px; min-width: 40px; border-radius: 50%; background: var(--gold-gradient); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; margin-left: 0.25rem; }
         .chat-send-btn:hover { transform: scale(1.1); }
         .chat-send-btn:disabled { opacity: 0.5; transform: none; cursor: not-allowed; }
         .chat-send-btn svg { width: 18px; height: 18px; color: var(--black); }
         
         /* Emoji Picker */
-        .emoji-picker { position: absolute; bottom: 100%; left: 0; background: var(--black-card); border: 1px solid rgba(201, 165, 78, 0.3); border-radius: 12px; padding: 0.75rem; width: 280px; display: none; box-shadow: 0 -5px 20px rgba(0,0,0,0.3); }
+        .emoji-picker { position: absolute; bottom: calc(100% + 10px); left: 10px; background: var(--black-card); border: 1px solid rgba(201, 165, 78, 0.3); border-radius: 12px; padding: 0.75rem; width: 280px; display: none; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); z-index: 1000; }
         .emoji-picker.open { display: block; }
         .emoji-tabs { display: flex; gap: 0.25rem; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(201, 165, 78, 0.1); padding-bottom: 0.5rem; }
         .emoji-tab { padding: 0.4rem 0.6rem; background: transparent; border: none; cursor: pointer; font-size: 1.1rem; border-radius: 6px; transition: all 0.2s; }
@@ -516,6 +516,21 @@
         .reaction-picker { position: absolute; background: var(--black-card); border: 1px solid rgba(201, 165, 78, 0.3); border-radius: 20px; padding: 0.4rem 0.6rem; display: none; gap: 0.25rem; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
         .reaction-picker.open { display: flex; }
         .reaction-picker .emoji-item { padding: 0.3rem; font-size: 1.1rem; }
+        
+        /* Toast Notification */
+        .toast-notification { position: fixed; top: 20px; right: 20px; background: var(--black-card); border: 1px solid var(--gold); border-radius: 12px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 20px rgba(201, 165, 78, 0.2); z-index: 100000; max-width: 350px; transform: translateX(120%); transition: transform 0.3s ease; cursor: pointer; }
+        .toast-notification.show { transform: translateX(0); }
+        .toast-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--gold-gradient); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .toast-icon svg { width: 20px; height: 20px; color: var(--black); }
+        .toast-content { flex: 1; min-width: 0; }
+        .toast-title { font-weight: 600; color: var(--gold); font-size: 0.9rem; margin-bottom: 0.2rem; }
+        .toast-body { color: var(--text-muted); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .toast-close { position: absolute; top: 8px; right: 8px; background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; padding: 0; line-height: 1; }
+        .toast-close:hover { color: var(--gold); }
+        
+        /* Unread badge pulse animation */
+        .chat-fab .unread-badge { animation: pulse-badge 2s infinite; }
+        @keyframes pulse-badge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
         
         /* Admin Chat List */
         .admin-chat-container { display: flex; height: calc(100vh - 100px); background: var(--black-card); border-radius: 8px; overflow: hidden; border: 1px solid rgba(201, 165, 78, 0.1); }
@@ -1414,6 +1429,155 @@
             professional: { name: 'Professional', investment: 550, profit: 5550, bonus: 1500, duration: 3 },
             premium: { name: 'Premium', investment: 1100, profit: 11100, bonus: 5000, duration: 3 }
         };
+        
+        // ==================== NOTIFICATION SYSTEM ====================
+        // Notification sound (short pleasant chime)
+        const notificationSound = new Audio('data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABhgC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAAYYNbRYKAAAAAAD/+1DEAAAGAAGn9AAAIwjBq/UMAARMQBAEAQBA4PygIHBQEDg/KD5QEDhwfygIHBQEDg/lAQOD8oGP/BwfygY/8oHD8oGP/lB//8oPB+UA/KBj/+D//5Qf/+UH/6oCQkCQAAAJFBaBITUsXwgSBIEP/0kwOFQJFBaBITUsXwgSBIEP/0kwODAZfghDMPQNBgMCwKAoGXQQhqJoIAwIBAUCkGBYFA0CgZf/+1DEGgPLYY1X7DzHCMauLPwHiAEMBgMBl/BgWBgGBoFAUDLoIQ1E0EAYEAgKBSDAsCgaBQMv4MCwMAwNAoCgZdBCGomggDAgEBQKQYFgUDQKBl/BgWBgGBoFAUCwOQ1E0EAaCASDAsCgaBQMCgZfwYFgYBgaJQFAsEAYE///1f///upJJKPAg/0iDyQYkEn//6v///1VJJJJJiD//6H/VUkQ//9H///UpL/+1DEQYPAAAH+AAAAIAAAP8AAAARJJJJJJf/6lJH//1VJEJEuoyX//qMSJEu9X////6kkkkkly7/+qUl///VUl3e7vd//+qkkkkkkv/9VJJL/9VJJJd3u93f/9VUkkkkmIP/qlf/+qpLu93u7/qpJJJJJJJf/VJL//qkkku93e7vd/6qkkkkkl/9VJL//VSXd7vd3/qpJJJJJJf/6l//6qku73d73f/+1DERQPAAAH+AAAAIAAAP8AAAARVSSSSSSSSSv/qlJf/1Ul3e73d3/6pJJJJJJJL/6pSX/9VJd3u93d/+qpJJJJJf//qUl/+qpJLu93u73f/qkkkkkkl//qUl/+qkku73e7u//VSSSSSSXf/1Ukv/1Ukl3e73d3/6qkkkkkl3/9VJL/+qkku73e7u//qpJJJJJJJd/+1DE1gPAAAH+AAAAIAAAP8AAAAQpSX/6qSSS7vd7u7/9VJJJJJJJf/6qUl/+qkkl3e73d3/6pJJJJJJJd//VUkv/1Ukku73e7u//VSSSSSSX//VJL/9VSSXd7vd3f/qpJJJJJJd//VSS//VSXd7vd7u/6qSSSSSSS7/+qlJf/qpJLu93u7v/1UkkkkkkuX');
+        
+        // Request notification permission
+        async function requestNotificationPermission() {
+            if (!('Notification' in window)) {
+                console.log('This browser does not support notifications');
+                return false;
+            }
+            
+            if (Notification.permission === 'granted') {
+                return true;
+            }
+            
+            if (Notification.permission !== 'denied') {
+                const permission = await Notification.requestPermission();
+                return permission === 'granted';
+            }
+            
+            return false;
+        }
+        
+        // Show notification
+        function showNotification(title, body, icon = null) {
+            // Play sound
+            try {
+                notificationSound.volume = 0.5;
+                notificationSound.play().catch(() => {});
+            } catch(e) {}
+            
+            // Update page title with unread count
+            updatePageTitle();
+            
+            // Show browser notification if permitted
+            if (Notification.permission === 'granted') {
+                const notification = new Notification(title, {
+                    body: body,
+                    icon: icon || 'data:image/svg+xml,%3Csvg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Ccircle cx="50" cy="50" r="48" fill="%230a0a0a" stroke="%23c9a54e" stroke-width="3"/%3E%3Ctext x="50" y="55" text-anchor="middle" font-family="Georgia" font-size="28" font-weight="bold" fill="%23c9a54e"%3EDPT%3C/text%3E%3C/svg%3E',
+                    badge: 'data:image/svg+xml,%3Csvg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Ccircle cx="50" cy="50" r="48" fill="%23c9a54e"/%3E%3C/svg%3E',
+                    tag: 'dpt-message',
+                    renotify: true,
+                    vibrate: [200, 100, 200],
+                    requireInteraction: false
+                });
+                
+                notification.onclick = function() {
+                    window.focus();
+                    const chatWindow = document.getElementById('userChatWindow');
+                    if (chatWindow && !chatWindow.classList.contains('open')) {
+                        toggleUserChat();
+                    }
+                    notification.close();
+                };
+                
+                // Auto close after 5 seconds
+                setTimeout(() => notification.close(), 5000);
+            }
+            
+            // Show in-app toast notification
+            showToastNotification(title, body);
+        }
+        
+        // In-app toast notification
+        function showToastNotification(title, body) {
+            // Remove existing toast
+            const existingToast = document.querySelector('.toast-notification');
+            if (existingToast) existingToast.remove();
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-body">${body}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+            `;
+            
+            toast.onclick = function(e) {
+                if (e.target.classList.contains('toast-close')) return;
+                const chatWindow = document.getElementById('userChatWindow');
+                if (chatWindow && !chatWindow.classList.contains('open')) {
+                    toggleUserChat();
+                }
+                toast.remove();
+            };
+            
+            document.body.appendChild(toast);
+            
+            // Animate in
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+        
+        // Update page title with unread count
+        function updatePageTitle() {
+            if (!currentUser) return;
+            const chatData = JSON.parse(localStorage.getItem('dpt_chat_' + currentUser.id) || '{"messages":[], "unreadUser": 0}');
+            const unread = chatData.unreadUser || 0;
+            
+            if (unread > 0) {
+                document.title = `(${unread}) Daily Pip Trade`;
+            } else {
+                document.title = 'Daily Pip Trade - Premium Forex Investment';
+            }
+        }
+        
+        // Check for new messages (polling)
+        let lastMessageCount = 0;
+        function checkForNewMessages() {
+            if (!currentUser) return;
+            
+            const chatData = JSON.parse(localStorage.getItem('dpt_chat_' + currentUser.id) || '{"messages":[]}');
+            const currentCount = chatData.messages.length;
+            const unreadUser = chatData.unreadUser || 0;
+            
+            // Update unread badge
+            updateUserUnreadBadge();
+            updatePageTitle();
+            
+            // Check for new admin messages
+            if (currentCount > lastMessageCount && lastMessageCount > 0) {
+                const lastMsg = chatData.messages[chatData.messages.length - 1];
+                if (lastMsg && lastMsg.sender === 'admin' && !lastMsg.read) {
+                    // Check if chat window is closed
+                    const chatWindow = document.getElementById('userChatWindow');
+                    if (!chatWindow || !chatWindow.classList.contains('open')) {
+                        showNotification('DPT Support', lastMsg.text || 'You have a new message');
+                    }
+                }
+            }
+            
+            lastMessageCount = currentCount;
+        }
+        
+        // Start polling for new messages
+        setInterval(checkForNewMessages, 3000);
         
         // ==================== FIREBASE CONFIGURATION ====================
         // Daily Pip Trade Firebase Config
@@ -3466,6 +3630,10 @@
             chatData.lastMessageTime = msg.timestamp;
             chatData.unreadUser = (chatData.unreadUser || 0) + 1;
             
+            // Store notification flag for the user
+            chatData.hasNewMessage = true;
+            chatData.lastAdminMessage = text;
+            
             localStorage.setItem('dpt_chat_' + currentChatUserId, JSON.stringify(chatData));
             
             // Update index
@@ -3636,12 +3804,23 @@
             document.getElementById('loginForm')?.addEventListener('submit', handleLogin);
             document.getElementById('registerForm')?.addEventListener('submit', handleRegister);
             
+            // Request notification permission
+            requestNotificationPermission();
+            
             // Start testimonials
             setTimeout(() => { showTestimonial(); setInterval(showTestimonial, 30000); }, 5000);
             
             // Auto-login check
             if (localStorage.getItem('dpt_adminAuth') === 'true') showPage('admin');
-            else if (localStorage.getItem('dpt_currentUser')) showPage('dashboard');
+            else if (localStorage.getItem('dpt_currentUser')) {
+                showPage('dashboard');
+                // Initialize message count for notification checking
+                const user = JSON.parse(localStorage.getItem('dpt_currentUser'));
+                if (user) {
+                    const chatData = JSON.parse(localStorage.getItem('dpt_chat_' + user.id) || '{"messages":[]}');
+                    lastMessageCount = chatData.messages.length;
+                }
+            }
         });
         
         // Show/hide chat FAB based on page
